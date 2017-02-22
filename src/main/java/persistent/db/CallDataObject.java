@@ -2,10 +2,7 @@ package persistent.db;
 
 import models.Call;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class CallDataObject extends AbstractDataObject<Call> {
 
@@ -57,7 +54,7 @@ public class CallDataObject extends AbstractDataObject<Call> {
         statement.setLong(2, obj.getCallReasonId());
         statement.setLong(3, obj.getUserId());
         statement.setLong(4, obj.getSuperuserId());
-        statement.setTimestamp(5, obj.getCreatedAt());
+        statement.setTimestamp(5, new Timestamp(obj.getCreatedAt().getTime()));
         statement.setShort(6, obj.getStatus());
     }
 
@@ -66,7 +63,7 @@ public class CallDataObject extends AbstractDataObject<Call> {
         statement.setLong(1, obj.getCallReasonId());
         statement.setLong(2, obj.getUserId());
         statement.setLong(3, obj.getSuperuserId());
-        statement.setTimestamp(4, obj.getCreatedAt());
+        statement.setTimestamp(4, new Timestamp(obj.getCreatedAt().getTime()));
         statement.setShort(5, obj.getStatus());
         statement.setLong(6, obj.getId());
     }

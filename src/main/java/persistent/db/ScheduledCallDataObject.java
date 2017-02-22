@@ -2,10 +2,7 @@ package persistent.db;
 
 import models.ScheduledCall;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class ScheduledCallDataObject extends AbstractDataObject<ScheduledCall> {
 
@@ -55,14 +52,14 @@ public class ScheduledCallDataObject extends AbstractDataObject<ScheduledCall> {
         statement.setLong(1, obj.getId());
         if (obj.getCall() != null)
             statement.setLong(2, obj.getCall().getId());
-        statement.setTimestamp(3, obj.getScheduledAt());
+        statement.setTimestamp(3, new Timestamp(obj.getScheduledAt().getTime()));
     }
 
     @Override
     protected void prepareUpdate(ScheduledCall obj, PreparedStatement statement) throws SQLException {
         if (obj.getCall() != null)
             statement.setLong(1, obj.getCall().getId());
-        statement.setTimestamp(2, obj.getScheduledAt());
+        statement.setTimestamp(2, new Timestamp(obj.getScheduledAt().getTime()));
         statement.setLong(3, obj.getId());
     }
 

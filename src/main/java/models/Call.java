@@ -1,12 +1,16 @@
 package models;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
 public class Call {
 
     private long id;
     private long callReasonId;
     private long userId;
     private long superuserId;
-    private java.sql.Timestamp createdAt;
+    private java.util.Date createdAt;
     private short status;
 
     public Call() {
@@ -44,11 +48,11 @@ public class Call {
         this.superuserId = superuserId;
     }
 
-    public java.sql.Timestamp getCreatedAt() {
+    public java.util.Date getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(java.sql.Timestamp createdAt) {
+    public void setCreatedAt(java.util.Date createdAt) {
         this.createdAt = createdAt;
     }
 

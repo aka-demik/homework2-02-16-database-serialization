@@ -2,10 +2,7 @@ package persistent.db;
 
 import models.User;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class UserDataObject extends AbstractDataObject<User> {
 
@@ -62,7 +59,11 @@ public class UserDataObject extends AbstractDataObject<User> {
         statement.setString(5, obj.getLastName());
         statement.setString(6, obj.getEmail());
         statement.setString(7, obj.getPhone());
-        statement.setDate(8, obj.getBirthDate());
+        if (obj.getBirthDate() != null) {
+            statement.setDate(8, new Date(obj.getBirthDate().getTime()));
+        } else {
+            statement.setNull(8, Types.DATE);
+        }
     }
 
     @Override
@@ -73,7 +74,11 @@ public class UserDataObject extends AbstractDataObject<User> {
         statement.setString(4, obj.getLastName());
         statement.setString(5, obj.getEmail());
         statement.setString(6, obj.getPhone());
-        statement.setDate(7, obj.getBirthDate());
+        if (obj.getBirthDate() != null) {
+            statement.setDate(7, new Date(obj.getBirthDate().getTime()));
+        } else {
+            statement.setNull(7, Types.DATE);
+        }
         statement.setLong(8, obj.getId());
     }
 

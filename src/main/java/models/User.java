@@ -9,7 +9,7 @@ public class User {
     private String lastName;
     private String email;
     private String phone;
-    private java.sql.Date birthDate;
+    private java.util.Date birthDate;
 
     public User() {
     }
@@ -70,11 +70,11 @@ public class User {
         this.phone = phone;
     }
 
-    public java.sql.Date getBirthDate() {
+    public java.util.Date getBirthDate() {
         return birthDate;
     }
 
-    public void setBirthDate(java.sql.Date birthDate) {
+    public void setBirthDate(java.util.Date birthDate) {
         this.birthDate = birthDate;
     }
 

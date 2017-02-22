@@ -1,6 +1,7 @@
 package persistent.db;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public abstract class AbstractDataObject<T> {
@@ -54,6 +55,12 @@ public abstract class AbstractDataObject<T> {
         }
     }
 
+    public Collection<T> getAll() throws SQLException {
+        Collection<T> tmp = new ArrayList<>();
+        getAll(tmp);
+        return tmp;
+    }
+
     public boolean save(T obj) throws SQLException {
         try (PreparedStatement statement = con.prepareStatement(getUpdateSQL())) {
             prepareUpdate(obj, statement);
@@ -71,14 +78,14 @@ public abstract class AbstractDataObject<T> {
         }
     }
 
-    public boolean insert(T obj) throws SQLException {
+    public boolean insertOne(T obj) throws SQLException {
         try (PreparedStatement statement = con.prepareStatement(getInsertSQL())) {
             prepareInsert(obj, statement);
             return statement.execute();
         }
     }
 
-    public void insert(Collection<? extends T> objs) throws SQLException {
+    public void insert(Collection<T> objs) throws SQLException {
         try (PreparedStatement statement = con.prepareStatement(getInsertSQL())) {
             for (T obj : objs) {
                 prepareInsert(obj, statement);

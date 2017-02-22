@@ -1,10 +1,16 @@
 package models;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+//@XmlRootElement(name = "ScheduledCall")
+//@XmlAccessorType(XmlAccessType.FIELD)
 public class ScheduledCall {
 
     private long id;
     private Call call;
-    private java.sql.Timestamp scheduledAt;
+    private java.util.Date scheduledAt;
 
     public ScheduledCall() {
     }
@@ -25,11 +31,11 @@ public class ScheduledCall {
         this.call = call;
     }
 
-    public java.sql.Timestamp getScheduledAt() {
+    public java.util.Date getScheduledAt() {
         return scheduledAt;
     }
 
-    public void setScheduledAt(java.sql.Timestamp scheduledAt) {
+    public void setScheduledAt(java.util.Date scheduledAt) {
         this.scheduledAt = scheduledAt;
     }
 
