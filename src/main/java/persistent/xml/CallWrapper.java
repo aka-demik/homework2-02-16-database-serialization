@@ -10,15 +10,25 @@ import java.util.Collection;
 
 @XmlRootElement(name = "Calls")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class CallWrapper {
+public class CallWrapper extends AbstractWrapper<Call> {
 
     @XmlElement(name = "Call")
-    public Collection<Call> items = null;
+    private Collection<Call> items = null;
 
     public CallWrapper() {
     }
 
     public CallWrapper(Collection<Call> items) {
+        this.items = items;
+    }
+
+    @Override
+    public Collection<Call> getItems() {
+        return items;
+    }
+
+    @Override
+    public void setItems(Collection<Call> items) {
         this.items = items;
     }
 

@@ -1,4 +1,4 @@
-package log;
+package common.log;
 
 import org.apache.log4j.EnhancedPatternLayout;
 

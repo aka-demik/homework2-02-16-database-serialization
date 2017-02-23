@@ -10,16 +10,26 @@ import java.util.Collection;
 
 @XmlRootElement(name = "Users")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class UserWrapper {
+public class UserWrapper extends AbstractWrapper<User> {
 
     @XmlElement(name = "User")
-    public Collection<User> items = null;
+    private Collection<User> items = null;
 
     public UserWrapper() {
 
     }
 
     public UserWrapper(Collection<User> items) {
+        this.items = items;
+    }
+
+    @Override
+    public Collection<User> getItems() {
+        return items;
+    }
+
+    @Override
+    public void setItems(Collection<User> items) {
         this.items = items;
     }
 

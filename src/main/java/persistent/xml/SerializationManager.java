@@ -6,14 +6,10 @@ import persistent.db.*;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class SerializationManager {
@@ -31,88 +27,32 @@ public class SerializationManager {
         this.con = con;
     }
 
-    private void saveCalls() {
-        try {
-            if (!stop)
-                Serializer.save(
-                        new CallWrapper(new CallDataObject(con).getAll()),
-                        new File(CALLS_XML),
-                        CallWrapper.class, Call.class);
-        } catch (JAXBException | IOException | SQLException e) {
-            logger.error("Calls export error", e);
-            stop = true;
-        }
-    }
-
-    private void saveCallReasons() {
-        try {
-            if (!stop)
-                Serializer.save(
-                        new CallReasonWrapper(new CallReasonDataObject(con).getAll()),
-                        new File(CALL_REASONS_XML),
-                        CallReasonWrapper.class, CallReason.class);
-        } catch (JAXBException | IOException | SQLException e) {
-            logger.error("Call reasons export error", e);
-            stop = true;
-        }
-    }
-
-    private void saveScheduledCalls() {
-        try {
-            if (!stop)
-                Serializer.save(
-                        new ScheduledCallWrapper(new ScheduledCallDataObject(con).getAll()),
-                        new File(SCHEDULED_CALLS_XML),
-                        ScheduledCallWrapper.class, ScheduledCall.class);
-        } catch (JAXBException | IOException | SQLException e) {
-            logger.error("Scheduled calls export error", e);
-            stop = true;
-        }
-    }
-
-    private void saveSuperUsers() {
-        try {
-            if (!stop)
-                Serializer.save(
-                        new SuperUserWrapper(new SuperUserDataObject(con).getAll()),
-                        new File(SUPER_USERS_XML),
-                        SuperUserWrapper.class, SuperUser.class);
-        } catch (JAXBException | IOException | SQLException e) {
-            logger.error("SuperUser export error", e);
-            stop = true;
-        }
-    }
-
-    private void saveUsers() {
-        try {
-            if (!stop)
-                Serializer.save(
-                        new UserWrapper(new UserDataObject(con).getAll()),
-                        new File(USERS_XML),
-                        UserWrapper.class, User.class);
-        } catch (JAXBException | IOException | SQLException e) {
-            logger.error("User export error", e);
-            stop = true;
-        }
-    }
-
     public void exportAll() {
         final ExecutorService pool = Executors.newCachedThreadPool();
-        pool.submit(this::saveCalls);
-        pool.submit(this::saveCallReasons);
-        pool.submit(this::saveScheduledCalls);
-        pool.submit(this::saveSuperUsers);
-        pool.submit(this::saveUsers);
+
+        pool.submit(() -> saveXML(new CallWrapper(), new CallDataObject(con),
+                CALLS_XML, CallWrapper.class, Call.class));
+
+        pool.submit(() -> saveXML(new CallReasonWrapper(), new CallReasonDataObject(con),
+                CALL_REASONS_XML, CallReasonWrapper.class, CallReason.class));
+
+        pool.submit(() -> saveXML(new ScheduledCallWrapper(), new ScheduledCallDataObject(con),
+                SCHEDULED_CALLS_XML, ScheduledCallWrapper.class, ScheduledCall.class));
+
+        pool.submit(() -> saveXML(new SuperUserWrapper(), new SuperUserDataObject(con),
+                SUPER_USERS_XML, SuperUserWrapper.class, SuperUser.class));
+
+        pool.submit(() -> saveXML(new UserWrapper(), new UserDataObject(con),
+                USERS_XML, UserWrapper.class, User.class));
+
         pool.shutdown();
         try {
             pool.awaitTermination(1, TimeUnit.DAYS);
         } catch (InterruptedException e) {
+            stop = true;
             logger.error(e.getMessage(), e);
-        } finally {
-            stop = false;
         }
     }
-
 
     public void importAll() {
         final ExecutorService pool = Executors.newCachedThreadPool();
@@ -143,29 +83,29 @@ public class SerializationManager {
         });
 
         try {
-            Collection<SuperUser> users = superUsersFuture.get().items;
+            Collection<SuperUser> users = superUsersFuture.get().getItems();
             pool.submit(() -> importCollection(users, new SuperUserDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error reading super users from xml", e);
             stop = true;
+            logger.error("Error reading super users from xml", e);
             return;
         }
 
         try {
-            Collection<CallReason> items = crFuture.get().items;
+            Collection<CallReason> items = crFuture.get().getItems();
             pool.submit(() -> importCollection(items, new CallReasonDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error reading CallReason from xml", e);
             stop = true;
+            logger.error("Error reading CallReason from xml", e);
             return;
         }
 
         try {
-            Collection<User> users = usersFuture.get().items;
+            Collection<User> users = usersFuture.get().getItems();
             pool.submit(() -> importCollection(users, new UserDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error reading users from xml", e);
             stop = true;
+            logger.error("Error reading users from xml", e);
             return;
         }
 
@@ -173,8 +113,8 @@ public class SerializationManager {
         try {
             pool.awaitTermination(1, TimeUnit.DAYS);
         } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
             stop = true;
+            logger.error(e.getMessage(), e);
             return;
         }
 
@@ -182,29 +122,43 @@ public class SerializationManager {
             return;
 
         try {
-            Collection<Call> items = callFuture.get().items;
+            Collection<Call> items = callFuture.get().getItems();
             importCollection(items, new CallDataObject(con));
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error reading Call from xml", e);
             stop = true;
+            logger.error("Error reading Call from xml", e);
             return;
         }
 
         try {
-            Collection<ScheduledCall> items = shCallFuture.get().items;
+            Collection<ScheduledCall> items = shCallFuture.get().getItems();
             importCollection(items, new ScheduledCallDataObject(con));
         } catch (InterruptedException | ExecutionException e) {
+            stop = true;
             logger.error("Error reading ScheduledCall from xml", e);
         }
     }
 
-    private void importCollection(Collection collection, AbstractDataObject ado) {
+    private <T> void importCollection(Collection<T> collection, AbstractDataObject<T> ado) {
         if (!stop) {
             try {
                 ado.insert(collection);
             } catch (SQLException e) {
                 logger.error("Error writing to DB", e);
                 stop = true;
+            }
+        }
+    }
+
+    private <T> void saveXML(AbstractWrapper<T> wrapper, AbstractDataObject<T> dao, String fileName,
+                             Class... classesToBeBound) {
+        if (!stop) {
+            try {
+                wrapper.setItems(dao.getAll());
+                Serializer.save(wrapper, new File(fileName), classesToBeBound);
+            } catch (JAXBException | IOException | SQLException e) {
+                stop = true;
+                logger.error(wrapper.getClass().getName() + " export error", e);
             }
         }
     }

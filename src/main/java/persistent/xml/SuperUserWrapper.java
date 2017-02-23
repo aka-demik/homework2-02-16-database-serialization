@@ -10,15 +10,25 @@ import java.util.Collection;
 
 @XmlRootElement(name = "SuperUsers")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class SuperUserWrapper {
+public class SuperUserWrapper extends AbstractWrapper<SuperUser> {
 
     @XmlElement(name = "SuperUser")
-    public Collection<SuperUser> items = null;
+    private Collection<SuperUser> items = null;
 
     public SuperUserWrapper() {
     }
 
     public SuperUserWrapper(Collection<SuperUser> items) {
+        this.items = items;
+    }
+
+    @Override
+    public Collection<SuperUser> getItems() {
+        return items;
+    }
+
+    @Override
+    public void setItems(Collection<SuperUser> items) {
         this.items = items;
     }
 }

@@ -1,6 +1,7 @@
 package persistent.db;
 
 import models.ScheduledCall;
+import persistent.db.exceptions.PersistentException;
 
 import java.sql.*;
 
