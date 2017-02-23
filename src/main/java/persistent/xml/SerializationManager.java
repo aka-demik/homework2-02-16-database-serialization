@@ -87,7 +87,8 @@ public class SerializationManager {
             pool.submit(() -> importCollection(users, new SuperUserDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
             stop = true;
-            logger.error("Error reading super users from xml", e);
+            logger.error("Error reading super users from xml: " +
+                    e.getMessage(), e);
             return;
         }
 
@@ -96,7 +97,8 @@ public class SerializationManager {
             pool.submit(() -> importCollection(items, new CallReasonDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
             stop = true;
-            logger.error("Error reading CallReason from xml", e);
+            logger.error("Error reading CallReason from xml: " +
+                    e.getMessage(), e);
             return;
         }
 
@@ -105,7 +107,8 @@ public class SerializationManager {
             pool.submit(() -> importCollection(users, new UserDataObject(con)));
         } catch (InterruptedException | ExecutionException e) {
             stop = true;
-            logger.error("Error reading users from xml", e);
+            logger.error("Error reading users from xml: " +
+                    e.getMessage(), e);
             return;
         }
 
@@ -126,7 +129,8 @@ public class SerializationManager {
             importCollection(items, new CallDataObject(con));
         } catch (InterruptedException | ExecutionException e) {
             stop = true;
-            logger.error("Error reading Call from xml", e);
+            logger.error("Error reading Call from xml: " +
+                    e.getMessage(), e);
             return;
         }
 
@@ -135,7 +139,8 @@ public class SerializationManager {
             importCollection(items, new ScheduledCallDataObject(con));
         } catch (InterruptedException | ExecutionException e) {
             stop = true;
-            logger.error("Error reading ScheduledCall from xml", e);
+            logger.error("Error reading ScheduledCall from xml: " +
+                    e.getMessage(), e);
         }
     }
 
@@ -144,7 +149,8 @@ public class SerializationManager {
             try {
                 ado.insert(collection);
             } catch (SQLException e) {
-                logger.error("Error writing to DB", e);
+                logger.error(ado.getClass().getSimpleName() +
+                        " error writing to DB: " + e.getMessage(), e);
                 stop = true;
             }
         }
@@ -158,7 +164,8 @@ public class SerializationManager {
                 Serializer.save(wrapper, new File(fileName), classesToBeBound);
             } catch (JAXBException | IOException | SQLException e) {
                 stop = true;
-                logger.error(wrapper.getClass().getName() + " export error", e);
+                logger.error(wrapper.getClass().getSimpleName() +
+                        " export error: " + e.getMessage(), e);
             }
         }
     }
